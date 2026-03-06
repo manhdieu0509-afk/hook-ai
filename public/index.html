@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HookAI — Tạo Hook TikTok Shop bằng AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0A0F;--s:#13131A;--s2:#1C1C26;--b:rgba(255,255,255,0.07);
+  --pink:#FF2D6B;--cyan:#00E5FF;--pur:#A855F7;--yel:#FFD60A;--green:#00FF88;
+  --tx:#F0F0FF;--mu:rgba(240,240,255,0.42);
+  --grad:linear-gradient(135deg,#FF2D6B,#A855F7,#00E5FF)
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+body::before{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:700px;background:radial-gradient(ellipse,rgba(255,45,107,0.1) 0%,rgba(168,85,247,0.06) 40%,transparent 70%);pointer-events:none;z-index:0}
+
+nav{position:sticky;top:0;z-index:100;padding:.85rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(10,10,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--b)}
+.logo{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.badge{background:rgba(255,45,107,0.12);border:1px solid rgba(255,45,107,0.28);color:var(--pink);font-size:.66rem;font-weight:600;padding:.22rem .65rem;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+
+.wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:3.5rem 1.2rem 5rem}
+
+/* HERO */
+.hero{text-align:center;margin-bottom:2.8rem}
+.hero-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,214,10,0.09);border:1px solid rgba(255,214,10,0.2);color:var(--yel);font-size:.68rem;font-weight:600;padding:.28rem .8rem;border-radius:20px;margin-bottom:.9rem;letter-spacing:.5px}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5.5vw,3.2rem);font-weight:900;line-height:1.08;margin-bottom:.65rem}
+.g{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{color:var(--mu);font-size:.9rem;line-height:1.65;max-width:420px;margin:0 auto 1.6rem}
+
+/* FLOW PILLS */
+.flow{display:flex;align-items:center;justify-content:center;gap:.3rem;margin-bottom:2.5rem;flex-wrap:wrap}
+.fp{display:flex;align-items:center;gap:.35rem;background:var(--s);border:1px solid var(--b);border-radius:20px;padding:.35rem .8rem;font-size:.7rem;color:var(--mu)}
+.fp b{color:var(--tx);font-weight:600}
+.fa{color:rgba(255,255,255,0.15);font-size:.85rem}
+
+/* INPUT AREA */
+.input-area{background:var(--s);border:1.5px solid var(--b);border-radius:18px;padding:1.4rem 1.4rem 1.2rem;margin-bottom:1rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
+.input-area:focus-within{border-color:rgba(255,45,107,.4);box-shadow:0 0 0 4px rgba(255,45,107,.06)}
+.input-area::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,45,107,.3),transparent)}
+.ilabel{font-size:.7rem;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.6rem;display:flex;align-items:center;gap:.35rem}
+.irow{display:flex;gap:.65rem}
+.iurl{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:.7rem 1rem;outline:none;transition:border-color .2s}
+.iurl:focus{border-color:rgba(255,45,107,.35)}
+.iurl::placeholder{color:rgba(240,240,255,.22)}
+.ibtn{background:var(--grad);border:none;border-radius:10px;color:#fff;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:800;padding:.7rem 1.3rem;cursor:pointer;white-space:nowrap;transition:opacity .2s,transform .15s,box-shadow .2s;flex-shrink:0}
+.ibtn:hover:not(:disabled){opacity:.88;transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,45,107,.28)}
+.ibtn:disabled{opacity:.38;cursor:not-allowed;transform:none}
+
+/* PROGRESS */
+.prog{display:none;margin-top:1.1rem}
+.prog.show{display:block}
+.psteps{display:flex;flex-direction:column;gap:.5rem}
+.ps{display:flex;align-items:center;gap:.65rem;font-size:.78rem;color:var(--mu);transition:color .3s}
+.ps.active{color:var(--tx)}
+.ps.done{color:rgba(0,229,255,.8)}
+.psic{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:.6rem;flex-shrink:0;transition:all .3s}
+.ps.active .psic{border-color:var(--pur);animation:pulse 1s infinite}
+.ps.done .psic{border-color:var(--cyan);background:rgba(0,229,255,.1)}
+.pbar{height:2px;background:var(--s2);border-radius:2px;overflow:hidden;margin-top:.9rem}
+.pbfill{height:100%;background:var(--grad);border-radius:2px;width:0;transition:width .5s ease}
+
+/* PRODUCT CARD */
+.prod-card{display:none;background:var(--s);border:1px solid rgba(0,229,255,.12);border-radius:14px;padding:1rem 1.3rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.prod-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,255,.22),transparent)}
+.prod-card.show{display:flex;align-items:center;gap:1rem;animation:up .4s ease both}
+.prod-img{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--s2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.prod-img img{width:100%;height:100%;border-radius:8px;object-fit:cover}
+.prod-meta{}
+.prod-fetched{font-size:.65rem;color:var(--green);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:.2rem;display:flex;align-items:center;gap:.3rem}
+.prod-name{font-weight:700;font-size:.9rem;color:var(--tx);margin-bottom:.15rem}
+.prod-price{font-size:.78rem;color:var(--yel)}
+
+/* RESEARCH */
+.res{display:none;background:var(--s);border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:1.3rem 1.4rem;margin-bottom:1rem;position:relative;overflow:hidden}
+.res::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(168,85,247,.25),transparent)}
+.res.show{display:block;animation:up .5s ease both}
+.rtitle{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:var(--pur);text-transform:uppercase;letter-spacing:1px;margin-bottom:.85rem;display:flex;align-items:center;gap:.35rem}
+.segs{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-bottom:.9rem}
+.seg{background:var(--s2);border:1px solid var(--b);border-radius:9px;padding:.8rem}
+.seg-t{font-weight:700;color:var(--cyan);font-size:.73rem;margin-bottom:.25rem}
+.seg-d{color:var(--mu);font-size:.68rem;line-height:1.5}
+.ptitle{font-size:.67rem;font-weight:600;color:var(--pur);text-transform:uppercase;letter-spacing:.8px;margin-bottom:.4rem}
+.ptags{display:flex;flex-wrap:wrap;gap:.3rem}
+.ptag{background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.17);color:rgba(168,85,247,.9);padding:.18rem .55rem;border-radius:20px;font-size:.66rem}
+
+/* HOOKS */
+.hooks{display:none}
+.hooks.show{display:block;animation:up .5s ease both}
+.htop{display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem}
+.htitle{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800}
+.copyall{background:rgba(255,214,10,.09);border:1px solid rgba(255,214,10,.2);color:var(--yel);padding:.35rem .8rem;border-radius:8px;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.copyall:hover{background:rgba(255,214,10,.16)}
+
+.hcard{background:var(--s);border:1px solid var(--b);border-radius:11px;padding:.95rem 1.1rem;margin-bottom:.55rem;display:flex;align-items:flex-start;gap:.8rem;transition:border-color .2s,transform .15s;animation:up .4s ease both}
+.hcard:hover{border-color:rgba(255,45,107,.25);transform:translateX(3px)}
+.hnum{min-width:26px;height:26px;background:var(--grad);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.75rem;font-weight:900;color:#fff;flex-shrink:0}
+.hbody{flex:1}
+.htype{font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--pink);margin-bottom:.28rem}
+.htext{font-size:.88rem;line-height:1.6;color:var(--tx)}
+.hwhy{font-size:.68rem;color:var(--mu);margin-top:.28rem;line-height:1.5;font-style:italic}
+.hcopy{background:none;border:1px solid var(--b);border-radius:6px;padding:.28rem .55rem;color:var(--mu);font-size:.65rem;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.hcopy:hover{border-color:var(--cyan);color:var(--cyan)}
+.hcopy.ok{border-color:var(--green);color:var(--green)}
+
+.regen{width:100%;padding:.8rem;background:transparent;border:1.5px solid var(--b);border-radius:11px;color:var(--mu);font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:.5rem;display:none}
+.regen.show{display:block}
+.regen:hover{border-color:rgba(255,45,107,.35);color:var(--tx)}
+
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;background:var(--s);border:1px solid rgba(0,229,255,.25);color:var(--cyan);padding:.6rem 1.1rem;border-radius:10px;font-size:.78rem;font-weight:500;transform:translateY(55px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast.show{transform:translateY(0);opacity:1}
+
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:500px){.segs{grid-template-columns:1fr}.irow{flex-direction:column}.ibtn{width:100%}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">⚡ HookAI</div>
+  <div class="badge">TikTok Shop</div>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-pill">✨ Powered by Claude AI</div>
+    <h1>Dán link →<br><span class="g">Hook viral</span> trong 10 giây</h1>
+    <p>Chỉ cần dán link sản phẩm TikTok Shop. AI tự đọc thông tin, phân tích khách hàng và viết 5 hook cho video review của bạn.</p>
+  </div>
+
+  <div class="flow">
+    <div class="fp">🔗 <b>Dán link</b></div>
+    <div class="fa">→</div>
+    <div class="fp">🤖 <b>AI đọc sản phẩm</b></div>
+    <div class="fa">→</div>
+    <div class="fp">👥 <b>Phân tích khách hàng</b></div>
+    <div class="fa">→</div>
+    <div class="fp">🎯 <b>5 Hook viral</b></div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <div class="ilabel">🔗 Link sản phẩm TikTok Shop</div>
+    <div class="irow">
+      <input class="iurl" id="urlIn" type="url" placeholder="Dán link: https://vt.tiktok.com/..." />
+      <button class="ibtn" id="goBtn" onclick="startAnalysis()">⚡ Tạo Hook</button>
+    </div>
+
+    <!-- PROGRESS inside card -->
+    <div class="prog" id="prog">
+      <div class="psteps">
+        <div class="ps" id="ps1"><div class="psic" id="pi1">1</div>Đọc thông tin sản phẩm từ link</div>
+        <div class="ps" id="ps2"><div class="psic" id="pi2">2</div>Phân tích tệp khách hàng mục tiêu</div>
+        <div class="ps" id="ps3"><div class="psic" id="pi3">3</div>Viết 5 câu hook viral</div>
+      </div>
+      <div class="pbar"><div class="pbfill" id="pbf"></div></div>
+    </div>
+  </div>
+
+  <!-- PRODUCT INFO -->
+  <div class="prod-card" id="prodCard">
+    <div class="prod-img" id="prodImg">🛍️</div>
+    <div class="prod-meta">
+      <div class="prod-fetched" id="prodFetched">✅ Đã đọc từ TikTok Shop</div>
+      <div class="prod-name" id="prodName"></div>
+      <div class="prod-price" id="prodPrice"></div>
+    </div>
+  </div>
+
+  <!-- RESEARCH -->
+  <div class="res" id="resBox">
+    <div class="rtitle">🔍 Phân tích tệp khách hàng</div>
+    <div class="segs" id="segsGrid"></div>
+    <div class="ptitle">💡 Pain points</div>
+    <div class="ptags" id="painGrid"></div>
+  </div>
+
+  <!-- HOOKS -->
+  <div class="hooks" id="hooksBox">
+    <div class="htop">
+      <div class="htitle">🎯 5 Hook dành riêng cho sản phẩm này</div>
+      <button class="copyall" onclick="copyAll()">📋 Sao chép tất cả</button>
+    </div>
+    <div id="hooksGrid"></div>
+    <button class="regen" id="regenBtn" onclick="startAnalysis()">🔄 Tạo lại hook mới</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+function toast(m){
+  const el=$('toast');el.textContent=m;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2600);
+}
+
+function ps(id,state){
+  const el=$(id);
+  el.className='ps '+state;
+  const ic=el.querySelector('.psic');
+  if(state==='done') ic.textContent='✓';
+}
+
+function pb(pct){ $('pbf').style.width=pct+'%'; }
+
+async function startAnalysis(){
+  const url=$('urlIn').value.trim();
+  if(!url||!url.includes('tiktok')){ toast('⚠️ Dán link TikTok Shop hợp lệ nhé!'); return; }
+
+  // Reset
+  $('goBtn').disabled=true; $('goBtn').textContent='⏳ Đang xử lý...';
+  $('prog').className='prog show';
+  $('prodCard').className='prod-card';
+  $('resBox').className='res';
+  $('hooksBox').className='hooks';
+  $('regenBtn').className='regen';
+  ['ps1','ps2','ps3'].forEach((s,i)=>{ $(s).className='ps'; $(s).querySelector('.psic').textContent=i+1; });
+  pb(0);
+
+  ps('ps1','active'); pb(15);
+
+  try {
+    // Gọi Vercel API (server-side fetch TikTok + Claude)
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    ps('ps1','done'); ps('ps2','active'); pb(50);
+
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Lỗi server');
+
+    // Show product info
+    const pi = data.productInfo;
+    $('prodName').textContent = pi.name || 'Sản phẩm TikTok Shop';
+    $('prodPrice').textContent = pi.price ? '💰 ' + pi.price : pi.summary || '';
+    $('prodFetched').textContent = pi.fetchedFromLink ? '✅ Đã đọc từ TikTok Shop' : '🤖 AI phân tích từ link';
+    if(pi.image){
+      $('prodImg').innerHTML = `<img src="${pi.image}" onerror="this.parentNode.textContent='🛍️'" />`;
+    }
+    $('prodCard').className='prod-card show';
+
+    ps('ps2','done'); ps('ps3','active'); pb(75);
+
+    setTimeout(()=>{
+      ps('ps3','done'); pb(100);
+      setTimeout(()=>{
+        $('prog').className='prog';
+        renderResearch(data.segments, data.painPoints);
+        renderHooks(data.hooks);
+        $('goBtn').disabled=false; $('goBtn').textContent='⚡ Tạo Hook';
+        $('regenBtn').className='regen show';
+        toast('🎉 Xong! 5 hook đã sẵn sàng');
+      }, 500);
+    }, 800);
+
+  } catch(e) {
+    $('prog').className='prog';
+    $('goBtn').disabled=false; $('goBtn').textContent='⚡ Tạo Hook';
+    toast('❌ '+e.message);
+    console.error(e);
+  }
+}
+
+function renderResearch(segs,pains){
+  $('segsGrid').innerHTML=(segs||[]).map(s=>`
+    <div class="seg"><div class="seg-t">👤 ${s.title}</div><div class="seg-d">${s.desc}</div></div>`).join('');
+  $('painGrid').innerHTML=(pains||[]).map(p=>`<span class="ptag">${p}</span>`).join('');
+  $('resBox').className='res show';
+}
+
+function renderHooks(hooks){
+  $('hooksGrid').innerHTML=(hooks||[]).map((h,i)=>`
+    <div class="hcard" style="animation-delay:${i*.06}s">
+      <div class="hnum">${i+1}</div>
+      <div class="hbody">
+        <div class="htype">${h.type}</div>
+        <div class="htext">"${h.text}"</div>
+        <div class="hwhy">💡 ${h.why}</div>
+      </div>
+      <button class="hcopy" onclick="copyOne(this,\`${h.text.replace(/`/g,"'")}\`)">Copy</button>
+    </div>`).join('');
+  $('hooksBox').className='hooks show';
+}
+
+function copyOne(btn,txt){
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.textContent='✓'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('ok'); },1800);
+    toast('✅ Đã sao chép!');
+  });
+}
+
+function copyAll(){
+  const all=[...$('hooksGrid').querySelectorAll('.htext')].map((el,i)=>`${i+1}. ${el.textContent}`).join('\n');
+  navigator.clipboard.writeText(all).then(()=>toast('📋 Sao chép cả 5 hook!'));
+}
+</script>
+</body>
+</html>
